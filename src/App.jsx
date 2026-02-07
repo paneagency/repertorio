@@ -119,7 +119,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1>Setlist Builder <span style={{ fontSize: '0.5em', color: 'gold' }}>CLOUD ☁️</span></h1>
+      <h1>Setlist Tiempo y Autores <span style={{ fontSize: '0.5em', color: 'gold' }}>CLOUD ☁️</span></h1>
 
       <div className="app-grid">
         {/* Left Column: Song Library */}
