@@ -127,7 +127,7 @@ const SortableItem = ({ id, item, song, index, onDelete, onDurationChange }) => 
     );
 };
 
-const Setlist = ({ setlist, setSetlist, library, presets, setPresets }) => {
+const Setlist = ({ setlist, setSetlist, library, presets, setPresets, onAddPreset, onDeletePreset }) => {
     const [showName, setShowName] = useState('');
     const [copyFeedback, setCopyFeedback] = useState('');
 
@@ -159,7 +159,7 @@ const Setlist = ({ setlist, setSetlist, library, presets, setPresets }) => {
         ));
     };
 
-    const handleSavePreset = () => {
+    const handleSavePreset = async () => {
         if (!showName.trim()) {
             alert("Por favor ingresa un nombre para el show");
             return;
@@ -170,7 +170,13 @@ const Setlist = ({ setlist, setSetlist, library, presets, setPresets }) => {
             items: setlist,
             savedAt: new Date().toISOString()
         };
-        setPresets(prev => [...prev, newPreset]);
+
+        if (onAddPreset) {
+            await onAddPreset(newPreset);
+        } else if (setPresets) {
+            setPresets(prev => [...prev, newPreset]);
+        }
+
         setCopyFeedback('Preset Guardado ✅');
         setTimeout(() => setCopyFeedback(''), 3000);
     };
@@ -182,9 +188,13 @@ const Setlist = ({ setlist, setSetlist, library, presets, setPresets }) => {
         }
     };
 
-    const handleDeletePreset = (id) => {
+    const handleDeletePreset = async (id) => {
         if (window.confirm('¿Borrar este preset?')) {
-            setPresets(prev => prev.filter(p => p.id !== id));
+            if (onDeletePreset) {
+                await onDeletePreset(id);
+            } else if (setPresets) {
+                setPresets(prev => prev.filter(p => p.id !== id));
+            }
         }
     };
 
