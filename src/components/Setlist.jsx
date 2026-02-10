@@ -61,7 +61,6 @@ const SortableItem = ({ id, item, song, index, onDelete, onDurationChange }) => 
     return (
         <div
             ref={setNodeRef}
-            style={style}
             className="glass-panel"
             style={{
                 ...style,
@@ -354,12 +353,30 @@ const Setlist = ({ setlist, setSetlist, library, presets, setPresets, onAddPrese
                     <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border)' }}>
                         <div className="text-small" style={{ marginBottom: '8px' }}>Presets Guardados:</div>
                         <div className="flex-row" style={{ flexWrap: 'wrap', gap: '8px' }}>
-                            {presets.map(p => (
-                                <div key={p.id} className="glass-panel" style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9em' }}>
-                                    <span style={{ cursor: 'pointer' }} onClick={() => handleLoadPreset(p)}>{p.name}</span>
-                                    <Trash2 size={14} className="danger" style={{ cursor: 'pointer' }} onClick={() => handleDeletePreset(p.id)} />
-                                </div>
-                            ))}
+                            {presets.map(p => {
+                                // Calculate preset duration on the fly
+                                let totalSec = 0;
+                                if (p.items && Array.isArray(p.items)) {
+                                    p.items.forEach(item => {
+                                        const song = library.find(s => s.id === item.songId);
+                                        const dur = item.overrideDuration || song?.duration || "00:00";
+                                        totalSec += timeToSeconds(dur);
+                                    });
+                                    if (p.items.length > 1) {
+                                        totalSec += (p.items.length - 1) * 10;
+                                    }
+                                }
+                                const durationStr = secondsToTime(totalSec);
+
+                                return (
+                                    <div key={p.id} className="glass-panel" style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9em' }}>
+                                        <span style={{ cursor: 'pointer' }} onClick={() => handleLoadPreset(p)}>
+                                            {p.name} <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.85em' }}>({durationStr})</span>
+                                        </span>
+                                        <Trash2 size={14} className="danger" style={{ cursor: 'pointer' }} onClick={() => handleDeletePreset(p.id)} />
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
